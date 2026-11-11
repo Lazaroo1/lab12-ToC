@@ -21,3 +21,8 @@ cabal.project.local
 cabal.project.local~
 .HTF/
 .ghc.environment.*
+
+# Ejecutables y archivos generados al compilar directamente con ghc
+*.exe
+app/Main
+tests/Pruebas
