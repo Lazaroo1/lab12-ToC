@@ -4,11 +4,14 @@ module Ejercicio3
   ( titulo
   , transpuesta
   , formatearMatriz
-  , dimensiones
   , matrizEjemplo
+  , ejemplo
+  , personalizado
+  , ejecutar
   ) where
 
 import Data.List (intercalate)
+import Text.Read (readMaybe)
 
 import Consola
 
@@ -61,3 +64,41 @@ matrizEjemplo =
   , [4, 5, 6, 0]
   , [7, 8, 9, 1]
   ]
+
+mostrar :: [[Integer]] -> IO ()
+mostrar x = do
+  putStrLn (formatearMatriz "X" x)
+  putStrLn ""
+  case transpuesta x of
+    Left err -> putStrLn ("Error: " ++ err)
+    Right y -> do
+      putStrLn (formatearMatriz "Y" y)
+      putStrLn ("\nDimensiones: X es " ++ dimensiones x ++ " y Y = X^T es " ++ dimensiones y ++ ".")
+
+-- | Ejemplo del enunciado.
+ejemplo :: IO ()
+ejemplo = mostrar matrizEjemplo
+
+-- | Pide la matriz al usuario, fila por fila o completa en una sola línea.
+personalizado :: IO ()
+personalizado = do
+  putStrLn "Ingrese la matriz fila por fila (enteros separados por comas o espacios)."
+  putStrLn "También puede escribirla completa en la primera línea: [[1, 2], [3, 4]]"
+  putStrLn "Deje la línea vacía para terminar."
+  filas <- leerFilas 1
+  if null filas
+    then putStrLn "No se ingresó ninguna fila."
+    else putStrLn "" >> mostrar filas
+  where
+    leerFilas :: Int -> IO [[Integer]]
+    leerFilas i = do
+      texto <- preguntar ("  Fila " ++ show i ++ ": ")
+      if null texto
+        then pure []
+        else case (readMaybe texto, leerListaEnteros texto) of
+          (Just matriz, _) | i == 1 -> pure matriz
+          (_, Just fila) -> (fila :) <$> leerFilas (i + 1)
+          _ -> putStrLn "  Solo se permiten números enteros." >> leerFilas i
+
+ejecutar :: IO ()
+ejecutar = submenu titulo ejemplo personalizado
