@@ -12,6 +12,8 @@ module Ejercicio1
   , leerDiccionario
   , telefonos
   , ejemplo
+  , personalizado
+  , ejecutar
   ) where
 
 import Data.List (intercalate, nub, sortBy)
@@ -127,3 +129,32 @@ ejemplo = do
   putStrLn "D ="
   putStrLn (formatearLista telefonos)
   mostrarOrdenado "model" telefonos
+
+-- | Pide los diccionarios y la llave al usuario.
+personalizado :: IO ()
+personalizado = do
+  putStrLn "Ingrese un diccionario por línea con el formato  llave: valor, llave: valor"
+  putStrLn "Ejemplo: make: Apple, model: 2, color: Silver"
+  putStrLn "Deje la línea vacía para terminar."
+  diccionarios <- leerDiccionarios 1
+  if null diccionarios
+    then putStrLn "No se ingresó ningún diccionario."
+    else do
+      putStrLn "\nLista ingresada:"
+      putStrLn "D ="
+      putStrLn (formatearLista diccionarios)
+      putStrLn ("\nLlaves disponibles: " ++ intercalate ", " (nub (concatMap (map fst) diccionarios)))
+      llave <- preguntar "Llave para ordenar: "
+      mostrarOrdenado (quitarComillas llave) diccionarios
+  where
+    leerDiccionarios :: Int -> IO [Diccionario]
+    leerDiccionarios i = do
+      linea <- preguntar ("  Diccionario " ++ show i ++ ": ")
+      if null linea
+        then pure []
+        else case leerDiccionario linea of
+          Left err -> putStrLn ("  " ++ err) >> leerDiccionarios i
+          Right diccionario -> (diccionario :) <$> leerDiccionarios (i + 1)
+
+ejecutar :: IO ()
+ejecutar = submenu titulo ejemplo personalizado
