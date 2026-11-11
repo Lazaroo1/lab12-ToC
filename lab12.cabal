@@ -1,0 +1,23 @@
+cabal-version:   2.4
+name:            lab12
+version:         1.0.0
+synopsis:        Laboratorio 12 - funciones lambda en Haskell
+build-type:      Simple
+extra-doc-files: README.md
+
+common comun
+  default-language: Haskell2010
+  ghc-options:      -Wall
+  build-depends:    base >=4.14 && <5
+
+library
+  import:          comun
+  hs-source-dirs:  src
+  exposed-modules:
+    Consola
+
+executable lab12
+  import:         comun
+  hs-source-dirs: app
+  main-is:        Main.hs
+  build-depends:  lab12
