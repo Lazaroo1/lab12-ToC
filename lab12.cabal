@@ -17,6 +17,7 @@ library
     Consola
     Ejercicio1
     Ejercicio2
+    Ejercicio3
 
 executable lab12
   import:         comun
