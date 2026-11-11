@@ -16,6 +16,7 @@ library
   exposed-modules:
     Consola
     Ejercicio1
+    Ejercicio2
 
 executable lab12
   import:         comun
