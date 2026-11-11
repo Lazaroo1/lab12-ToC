@@ -13,12 +13,16 @@ module Consola
   , quitarCorchetes
   , quitarComillas
   , entreCorchetes
+    -- * Lectura de datos
+  , leerEntero
+  , leerListaEnteros
   ) where
 
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.List (dropWhileEnd, intercalate)
 import System.IO (hFlush, stdout)
+import Text.Read (readMaybe)
 
 -- | Muestra un mensaje, lee una línea y la devuelve sin espacios sobrantes.
 preguntar :: String -> IO String
@@ -97,3 +101,17 @@ quitarComillas = recortar . dropWhileEnd esComilla . dropWhile esComilla . recor
 -- | Une textos al estilo de una lista de Python: @[a, b, c]@.
 entreCorchetes :: [String] -> String
 entreCorchetes elementos = "[" ++ intercalate ", " elementos ++ "]"
+
+-- | Lee un número entero.
+leerEntero :: String -> Maybe Integer
+leerEntero = readMaybe . recortar
+
+-- | Lee una lista de enteros separados por comas o espacios, con o sin
+-- corchetes: @"1, 2, 3"@, @"[1, 2, 3]"@ o @"1 2 3"@.
+leerListaEnteros :: String -> Maybe [Integer]
+leerListaEnteros texto
+  | null contenido = Just []
+  | ',' `elem` contenido = mapM leerEntero (separarPor ',' contenido)
+  | otherwise = mapM leerEntero (words contenido)
+  where
+    contenido = quitarCorchetes texto
