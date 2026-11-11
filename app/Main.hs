@@ -1,6 +1,8 @@
 -- | Menú principal del Laboratorio 12.
 module Main (main) where
 
+import System.Environment (getArgs)
+
 import Consola
 import qualified Ejercicio1
 import qualified Ejercicio2
@@ -29,7 +31,23 @@ buscar clave = case filter (\e -> opcion e == clave) ejercicios of
   [] -> Nothing
 
 main :: IO ()
-main = menu
+main = do
+  argumentos <- getArgs
+  case argumentos of
+    [] -> menu
+    ["ejemplos"] -> todosLosEjemplos
+    [clave] | Just ejercicio <- buscar clave -> abrir ejercicio
+    _ -> putStr uso
+
+uso :: String
+uso =
+  unlines
+    [ "Uso: lab12 [OPCIÓN]"
+    , ""
+    , "  (sin opción)   abre el menú principal"
+    , "  1 | 2 | 3 | 4  abre directamente ese ejercicio"
+    , "  ejemplos       ejecuta el ejemplo del enunciado de los cuatro ejercicios"
+    ]
 
 menu :: IO ()
 menu = do
