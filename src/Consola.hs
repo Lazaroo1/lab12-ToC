@@ -3,7 +3,9 @@
 module Consola
   ( -- * Consola y menús
     preguntar
+  , pausa
   , encabezado
+  , submenu
     -- * Limpieza de texto
   , recortar
   , separarPor
@@ -13,6 +15,7 @@ module Consola
   , entreCorchetes
   ) where
 
+import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.List (dropWhileEnd, intercalate)
 import System.IO (hFlush, stdout)
@@ -24,6 +27,10 @@ preguntar mensaje = do
   hFlush stdout
   recortar <$> getLine
 
+-- | Espera a que el usuario presione Enter.
+pausa :: IO ()
+pausa = void (preguntar "\nPresione Enter para continuar...")
+
 -- | Imprime un título enmarcado.
 encabezado :: String -> IO ()
 encabezado texto = do
@@ -33,6 +40,23 @@ encabezado texto = do
   putStrLn linea
   where
     linea = replicate (length texto + 4) '='
+
+-- | Submenú común a todos los ejercicios: correr el ejemplo del enunciado o
+-- ingresar datos propios.
+submenu :: String -> IO () -> IO () -> IO ()
+submenu nombre ejemplo personalizado = ciclo
+  where
+    ciclo = do
+      encabezado nombre
+      putStrLn "  1. Ejecutar el ejemplo del enunciado"
+      putStrLn "  2. Ingresar datos propios"
+      putStrLn "  0. Regresar"
+      opcion <- preguntar "Opción: "
+      case opcion of
+        "1" -> putStrLn "" >> ejemplo >> pausa >> ciclo
+        "2" -> putStrLn "" >> personalizado >> pausa >> ciclo
+        "0" -> pure ()
+        _ -> putStrLn "Opción no válida." >> ciclo
 
 -- | Quita los espacios al inicio y al final de un texto.
 recortar :: String -> String
