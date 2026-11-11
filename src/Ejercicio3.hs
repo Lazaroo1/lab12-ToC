@@ -15,10 +15,18 @@ titulo = "Ejercicio 3 - Matriz transpuesta"
 -- fila j del resultado se forma tomando el elemento j de cada fila de X. La
 -- lambda externa recorre los índices de columna j y la interna extrae el
 -- elemento j de cada fila.
-transpuesta :: [[a]] -> [[a]]
-transpuesta [] = []
-transpuesta filas@(primera : _) =
-  map (\j -> map (\fila -> fila !! j) filas) [0 .. length primera - 1]
+--
+-- Si las filas no tienen todas el mismo tamaño la matriz no es válida y se
+-- devuelve un error.
+transpuesta :: [[a]] -> Either String [[a]]
+transpuesta [] = Right []
+transpuesta filas@(primera : _)
+  | all (\fila -> length fila == columnas) filas =
+      Right (map (\j -> map (\fila -> fila !! j) filas) [0 .. columnas - 1])
+  | otherwise =
+      Left "La matriz no es rectangular: todas las filas deben tener la misma cantidad de elementos."
+  where
+    columnas = length primera
 
 -- | Matriz del enunciado.
 matrizEjemplo :: [[Integer]]
