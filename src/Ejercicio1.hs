@@ -8,12 +8,17 @@ module Ejercicio1
   , mostrarValor
   , formatearDiccionario
   , formatearLista
+  , leerValor
+  , leerDiccionario
   , telefonos
   , ejemplo
   ) where
 
-import Data.List (intercalate, sortBy)
+import Data.List (intercalate, nub, sortBy)
 import Data.Maybe (isNothing)
+import Text.Read (readMaybe)
+
+import Consola
 
 -- | Valor guardado en un diccionario. Una lista de Haskell no puede mezclar
 -- tipos, así que cada valor es un número o un texto (en el ejemplo, 'model'
@@ -69,6 +74,32 @@ formatearDiccionario diccionario =
 -- | Un diccionario por línea, con el mismo formato del enunciado.
 formatearLista :: [Diccionario] -> String
 formatearLista diccionarios = "[" ++ intercalate ",\n " (map formatearDiccionario diccionarios) ++ "]"
+
+-- | Convierte el texto ingresado en un valor: si se puede leer como número es
+-- 'Numero', si no es 'Texto'. Un número entre comillas (por ejemplo @'7'@) se
+-- queda como texto.
+leerValor :: String -> Valor
+leerValor texto = case readMaybe limpio :: Maybe Double of
+  Just numero | not (isNaN numero || isInfinite numero) -> Numero numero
+  _ -> Texto (quitarComillas limpio)
+  where
+    limpio = recortar texto
+
+-- | Lee un diccionario escrito como @make: Apple, model: 2@. También acepta la
+-- sintaxis de Python: @{'make': 'Apple', 'model': 2}@, y el signo @=@ en
+-- lugar de @:@.
+leerDiccionario :: String -> Either String Diccionario
+leerDiccionario linea = do
+  pares <- mapM leerPar (separarPor ',' (quitarDelimitadores '{' '}' linea))
+  let llaves = map fst pares
+  if length (nub llaves) /= length llaves
+    then Left "Hay llaves repetidas en el diccionario."
+    else Right pares
+  where
+    leerPar texto = case break (\c -> c == ':' || c == '=') texto of
+      (llave, _ : valor)
+        | not (null (quitarComillas llave)) -> Right (quitarComillas llave, leerValor valor)
+      _ -> Left ("No se pudo leer \"" ++ texto ++ "\". Use el formato llave: valor.")
 
 -- | Lista de diccionarios del enunciado.
 telefonos :: [Diccionario]
