@@ -4,7 +4,10 @@ module Ejercicio1
   ( Valor (..)
   , Diccionario
   , titulo
+  , ordenarPor
   ) where
+
+import Data.List (sortBy)
 
 -- | Valor guardado en un diccionario. Una lista de Haskell no puede mezclar
 -- tipos, así que cada valor es un número o un texto (en el ejemplo, 'model'
@@ -22,3 +25,11 @@ type Diccionario = [(String, Valor)]
 
 titulo :: String
 titulo = "Ejercicio 1 - Ordenar una lista de diccionarios por llave"
+
+-- | Ordena la lista de diccionarios con respecto a la llave indicada.
+--
+-- La función de comparación es una lambda que busca la llave en los dos
+-- diccionarios y compara los valores encontrados. 'sortBy' es estable, así
+-- que los diccionarios con el mismo valor conservan su orden original.
+ordenarPor :: String -> [Diccionario] -> [Diccionario]
+ordenarPor llave = sortBy (\a b -> compare (lookup llave a) (lookup llave b))
