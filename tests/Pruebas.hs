@@ -9,6 +9,8 @@ import System.Exit (exitFailure)
 import Consola
 import Ejercicio1
 import Ejercicio2 (potencias)
+import Ejercicio3 (matrizEjemplo, transpuesta)
+import Ejercicio4 (aBorrarEjemplo, colores, eliminar, formatearTextos, noEncontrados)
 
 -- | Compara el resultado obtenido con el esperado e imprime OK o FALLA.
 verificar :: (Eq a, Show a) => String -> a -> a -> IO Bool
@@ -104,6 +106,96 @@ pruebasEjercicio2 =
       True
   ]
 
+-- Ejercicio 3 -----------------------------------------------------------------
+
+pruebasEjercicio3 :: [IO Bool]
+pruebasEjercicio3 =
+  [ verificar "matriz del enunciado (3×4 -> 4×3)"
+      (transpuesta matrizEjemplo)
+      (Right [[1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 0, 1]])
+  , verificar "matriz cuadrada"
+      (transpuesta [[1, 2], [3, 4 :: Integer]])
+      (Right [[1, 3], [2, 4]])
+  , verificar "una fila se vuelve columna"
+      (transpuesta [[1, 2, 3 :: Integer]])
+      (Right [[1], [2], [3]])
+  , verificar "una columna se vuelve fila"
+      (transpuesta [[1], [2], [3 :: Integer]])
+      (Right [[1, 2, 3]])
+  , verificar "la transpuesta de la transpuesta es la original"
+      (transpuesta matrizEjemplo >>= transpuesta)
+      (Right matrizEjemplo)
+  , verificar "funciona con cualquier tipo de elemento"
+      (transpuesta [["a", "b"], ["c", "d"]])
+      (Right [["a", "c"], ["b", "d"]])
+  , verificar "una matriz vacía queda vacía"
+      (transpuesta ([] :: [[Integer]]))
+      (Right [])
+  , verificar "una matriz con filas de distinto tamaño produce error"
+      (isLeft (transpuesta [[1, 2], [3 :: Integer]]))
+      True
+  ]
+
+-- Ejercicio 4 -----------------------------------------------------------------
+
+pruebasEjercicio4 :: [IO Bool]
+pruebasEjercicio4 =
+  [ verificar "colores del enunciado"
+      (eliminar colores aBorrarEjemplo)
+      ["rojo", "verde", "azul", "gris", "negro"]
+  , verificar "detecta los elementos que no estaban en la lista"
+      (noEncontrados colores aBorrarEjemplo)
+      ["café"]
+  , verificar "sin elementos a borrar la lista queda igual"
+      (eliminar colores [])
+      colores
+  , verificar "borrar todos los elementos deja una lista vacía"
+      (eliminar colores colores)
+      []
+  , verificar "elimina todas las apariciones de un elemento"
+      (eliminar ["a", "b", "a", "c", "a"] ["a"])
+      ["b", "c"]
+  , verificar "funciona con números"
+      (eliminar [1, 2, 3, 2, 1 :: Integer] [2])
+      [1, 3, 1]
+  , verificar "formatea textos como en Python"
+      (formatearTextos ["rojo", "verde"])
+      "['rojo', 'verde']"
+  ]
+
+-- Lectura de datos ------------------------------------------------------------
+
+pruebasConsola :: [IO Bool]
+pruebasConsola =
+  [ verificar "lee enteros con corchetes"
+      (leerListaEnteros "[1, 2, 3]")
+      (Just [1, 2, 3])
+  , verificar "lee enteros separados por espacios"
+      (leerListaEnteros "1 2 3")
+      (Just [1, 2, 3])
+  , verificar "lee enteros negativos"
+      (leerListaEnteros "-1, 0, 5")
+      (Just [-1, 0, 5])
+  , verificar "una lista vacía es válida"
+      (leerListaEnteros "[]")
+      (Just [])
+  , verificar "rechaza elementos que no son enteros"
+      (leerListaEnteros "1, dos, 3")
+      Nothing
+  , verificar "lee un entero con espacios alrededor"
+      (leerEntero "  42 ")
+      (Just 42)
+  , verificar "lee textos con comillas, incluso sin pareja"
+      (leerListaTextos "['rojo', 'verde', \"azul\", negro']")
+      ["rojo", "verde", "azul", "negro"]
+  , verificar "lee textos sin comillas ni corchetes"
+      (leerListaTextos "amarillo, café , blanco")
+      ["amarillo", "café", "blanco"]
+  , verificar "quita llaves de un diccionario"
+      (quitarDelimitadores '{' '}' " {a: 1} ")
+      "a: 1"
+  ]
+
 main :: IO ()
 main = do
   configurarConsola
@@ -112,6 +204,9 @@ main = do
       (\(nombre, pruebas) -> putStrLn ("\n" ++ nombre) >> sequence pruebas)
       [ ("Ejercicio 1", pruebasEjercicio1)
       , ("Ejercicio 2", pruebasEjercicio2)
+      , ("Ejercicio 3", pruebasEjercicio3)
+      , ("Ejercicio 4", pruebasEjercicio4)
+      , ("Lectura de datos", pruebasConsola)
       ]
   let todas = concat resultados
       fallas = length (filter not todas)
