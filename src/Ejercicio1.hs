@@ -3,6 +3,7 @@
 module Ejercicio1
   ( Valor (..)
   , Diccionario
+  , Orden (..)
   , titulo
   , ordenarPor
   , mostrarValor
@@ -16,6 +17,7 @@ module Ejercicio1
   , ejecutar
   ) where
 
+import Data.Char (toLower)
 import Data.List (intercalate, nub, sortBy)
 import Data.Maybe (isNothing)
 import Text.Read (readMaybe)
@@ -36,27 +38,34 @@ data Valor
 -- | Un diccionario es una lista de pares (llave, valor), como un dict de Python.
 type Diccionario = [(String, Valor)]
 
+data Orden = Ascendente | Descendente
+  deriving (Eq, Show)
+
 titulo :: String
 titulo = "Ejercicio 1 - Ordenar una lista de diccionarios por llave"
 
 -- | Ordena la lista de diccionarios con respecto a la llave indicada.
 --
 -- La función de comparación es una lambda que busca la llave en los dos
--- diccionarios y compara los valores encontrados. 'sortBy' es estable, así
--- que los diccionarios con el mismo valor conservan su orden original.
+-- diccionarios y compara los valores encontrados; para el orden descendente
+-- solo se invierte el orden de los argumentos. 'sortBy' es estable, así que
+-- los diccionarios con el mismo valor conservan su orden original.
 --
 -- Si algún diccionario no tiene la llave se devuelve un error, igual que
 -- Python lanzaría un KeyError.
-ordenarPor :: String -> [Diccionario] -> Either String [Diccionario]
-ordenarPor llave diccionarios
+ordenarPor :: Orden -> String -> [Diccionario] -> Either String [Diccionario]
+ordenarPor orden llave diccionarios
   | not (null faltantes) =
       Left
         ( "La llave '" ++ llave ++ "' no existe en " ++ show (length faltantes)
             ++ " de los " ++ show (length diccionarios) ++ " diccionarios."
         )
-  | otherwise = Right (sortBy (\a b -> compare (lookup llave a) (lookup llave b)) diccionarios)
+  | otherwise = Right (sortBy comparar diccionarios)
   where
     faltantes = filter (\d -> isNothing (lookup llave d)) diccionarios
+    comparar = case orden of
+      Ascendente -> \a b -> compare (lookup llave a) (lookup llave b)
+      Descendente -> \a b -> compare (lookup llave b) (lookup llave a)
 
 -- | Muestra un valor como lo haría Python: textos entre comillas simples y
 -- números enteros sin decimales.
@@ -113,14 +122,16 @@ telefonos =
   ]
 
 -- | Ordena e imprime el resultado (o el error, si la llave no existe).
-mostrarOrdenado :: String -> [Diccionario] -> IO ()
-mostrarOrdenado llave diccionarios =
-  case ordenarPor llave diccionarios of
+mostrarOrdenado :: Orden -> String -> [Diccionario] -> IO ()
+mostrarOrdenado orden llave diccionarios =
+  case ordenarPor orden llave diccionarios of
     Left err -> putStrLn ("\nError: " ++ err)
     Right ordenados -> do
-      putStrLn ("\nOrdenada por la llave '" ++ llave ++ "':")
+      putStrLn ("\nOrdenada por la llave '" ++ llave ++ "' (" ++ nombreOrden ++ "):")
       putStrLn "D ="
       putStrLn (formatearLista ordenados)
+  where
+    nombreOrden = if orden == Ascendente then "ascendente" else "descendente"
 
 -- | Ejemplo del enunciado: ordenar por la llave 'model'.
 ejemplo :: IO ()
@@ -128,9 +139,9 @@ ejemplo = do
   putStrLn "Lista original:"
   putStrLn "D ="
   putStrLn (formatearLista telefonos)
-  mostrarOrdenado "model" telefonos
+  mostrarOrdenado Ascendente "model" telefonos
 
--- | Pide los diccionarios y la llave al usuario.
+-- | Pide los diccionarios, la llave y el orden al usuario.
 personalizado :: IO ()
 personalizado = do
   putStrLn "Ingrese un diccionario por línea con el formato  llave: valor, llave: valor"
@@ -145,7 +156,8 @@ personalizado = do
       putStrLn (formatearLista diccionarios)
       putStrLn ("\nLlaves disponibles: " ++ intercalate ", " (nub (concatMap (map fst) diccionarios)))
       llave <- preguntar "Llave para ordenar: "
-      mostrarOrdenado (quitarComillas llave) diccionarios
+      orden <- preguntar "Orden ascendente (a) o descendente (d) [a]: "
+      mostrarOrdenado (leerOrden orden) (quitarComillas llave) diccionarios
   where
     leerDiccionarios :: Int -> IO [Diccionario]
     leerDiccionarios i = do
@@ -155,6 +167,9 @@ personalizado = do
         else case leerDiccionario linea of
           Left err -> putStrLn ("  " ++ err) >> leerDiccionarios i
           Right diccionario -> (diccionario :) <$> leerDiccionarios (i + 1)
+    leerOrden texto
+      | map toLower texto `elem` ["d", "desc", "descendente"] = Descendente
+      | otherwise = Ascendente
 
 ejecutar :: IO ()
 ejecutar = submenu titulo ejemplo personalizado
