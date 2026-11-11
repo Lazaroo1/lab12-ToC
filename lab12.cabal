@@ -15,6 +15,7 @@ library
   hs-source-dirs:  src
   exposed-modules:
     Consola
+    Ejercicio1
 
 executable lab12
   import:         comun
