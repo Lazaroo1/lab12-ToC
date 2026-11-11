@@ -3,8 +3,14 @@
 module Ejercicio3
   ( titulo
   , transpuesta
+  , formatearMatriz
+  , dimensiones
   , matrizEjemplo
   ) where
+
+import Data.List (intercalate)
+
+import Consola
 
 titulo :: String
 titulo = "Ejercicio 3 - Matriz transpuesta"
@@ -27,6 +33,26 @@ transpuesta filas@(primera : _)
       Left "La matriz no es rectangular: todas las filas deben tener la misma cantidad de elementos."
   where
     columnas = length primera
+
+-- | Imprime la matriz con una fila por línea y las columnas alineadas:
+--
+-- > X = [[1, 2, 3, 1],
+-- >      [4, 5, 6, 0],
+-- >      [7, 8, 9, 1]]
+formatearMatriz :: Show a => String -> [[a]] -> String
+formatearMatriz nombre filas =
+  nombre ++ " = [" ++ intercalate (",\n" ++ sangria) (map formatearFila textos) ++ "]"
+  where
+    textos = map (map show) filas
+    ancho = maximum (0 : map length (concat textos))
+    alinear texto = replicate (ancho - length texto) ' ' ++ texto
+    formatearFila fila = entreCorchetes (map alinear fila)
+    sangria = replicate (length nombre + 4) ' '
+
+-- | "filas×columnas" de una matriz.
+dimensiones :: [[a]] -> String
+dimensiones [] = "0×0"
+dimensiones filas@(primera : _) = show (length filas) ++ "×" ++ show (length primera)
 
 -- | Matriz del enunciado.
 matrizEjemplo :: [[Integer]]
