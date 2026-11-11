@@ -32,6 +32,7 @@ buscar clave = case filter (\e -> opcion e == clave) ejercicios of
 
 main :: IO ()
 main = do
+  configurarConsola
   argumentos <- getArgs
   case argumentos of
     [] -> menu

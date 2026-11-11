@@ -2,7 +2,8 @@
 -- datos, limpieza del texto ingresado y el submenú de cada ejercicio.
 module Consola
   ( -- * Consola y menús
-    preguntar
+    configurarConsola
+  , preguntar
   , pausa
   , encabezado
   , submenu
@@ -19,12 +20,27 @@ module Consola
   , leerListaTextos
   ) where
 
-import Control.Monad (void)
+import Control.Exception (SomeException, try)
+import Control.Monad (void, when)
 import Data.Char (isSpace)
 import Data.List (dropWhileEnd, intercalate)
 import System.Exit (exitSuccess)
-import System.IO (hFlush, isEOF, stdout)
+import System.IO
+import System.Info (os)
+import System.Process (callCommand)
 import Text.Read (readMaybe)
+
+-- | Prepara la consola para mostrar tildes, eñes y símbolos como ∈.
+-- En Windows cambia la página de códigos de la terminal a UTF-8 (lo mismo
+-- que ejecutar @chcp 65001@ antes de abrir el programa).
+configurarConsola :: IO ()
+configurarConsola = do
+  when (os == "mingw32") $
+    void (try (callCommand "chcp 65001 > nul") :: IO (Either SomeException ()))
+  codificacion <- mkTextEncoding "UTF-8//ROUNDTRIP"
+  hSetEncoding stdin codificacion
+  hSetEncoding stdout codificacion
+  hSetBuffering stdout NoBuffering
 
 -- | Muestra un mensaje, lee una línea y la devuelve sin espacios sobrantes.
 -- Si ya no hay más entrada (EOF), el programa termina sin error.
