@@ -7,7 +7,12 @@ module Ejercicio4
   , formatearTextos
   , colores
   , aBorrarEjemplo
+  , ejemplo
+  , personalizado
+  , ejecutar
   ) where
+
+import Control.Monad (unless)
 
 import Consola
 
@@ -37,3 +42,28 @@ colores = ["rojo", "verde", "azul", "amarillo", "gris", "blanco", "negro"]
 -- | Elementos a borrar del enunciado.
 aBorrarEjemplo :: [String]
 aBorrarEjemplo = ["amarillo", "café", "blanco"]
+
+mostrar :: [String] -> [String] -> IO ()
+mostrar lista aBorrar = do
+  putStrLn ("Lista inicial:      " ++ formatearTextos lista)
+  putStrLn ("Elementos a borrar: " ++ formatearTextos aBorrar)
+  putStrLn ("Resultado:          " ++ formatearTextos (eliminar lista aBorrar))
+  let ignorados = noEncontrados lista aBorrar
+  unless (null ignorados) $
+    putStrLn ("\nNo estaban en la lista (no había nada que borrar): " ++ formatearTextos ignorados)
+
+-- | Ejemplo del enunciado.
+ejemplo :: IO ()
+ejemplo = mostrar colores aBorrarEjemplo
+
+-- | Pide las dos listas al usuario.
+personalizado :: IO ()
+personalizado = do
+  putStrLn "Escriba los elementos separados por comas (las comillas y corchetes son opcionales)."
+  lista <- preguntar "Lista inicial: "
+  aBorrar <- preguntar "Elementos a borrar: "
+  putStrLn ""
+  mostrar (leerListaTextos lista) (leerListaTextos aBorrar)
+
+ejecutar :: IO ()
+ejecutar = submenu titulo ejemplo personalizado

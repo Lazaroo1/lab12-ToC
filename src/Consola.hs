@@ -16,6 +16,7 @@ module Consola
     -- * Lectura de datos
   , leerEntero
   , leerListaEnteros
+  , leerListaTextos
   ) where
 
 import Control.Monad (void)
@@ -115,3 +116,8 @@ leerListaEnteros texto
   | otherwise = mapM leerEntero (words contenido)
   where
     contenido = quitarCorchetes texto
+
+-- | Lee una lista de textos separados por comas, con o sin corchetes y
+-- comillas: @"rojo, verde"@ o @"['rojo', 'verde']"@.
+leerListaTextos :: String -> [String]
+leerListaTextos = filter (not . null) . map quitarComillas . separarPor ',' . quitarCorchetes

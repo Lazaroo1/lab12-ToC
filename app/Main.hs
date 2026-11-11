@@ -5,6 +5,7 @@ import Consola
 import qualified Ejercicio1
 import qualified Ejercicio2
 import qualified Ejercicio3
+import qualified Ejercicio4
 
 data Ejercicio = Ejercicio
   { opcion :: String
@@ -17,6 +18,7 @@ ejercicios =
   [ Ejercicio "1" "Ordenar una lista de diccionarios por llave" Ejercicio1.ejecutar
   , Ejercicio "2" "Potencia n-ésima de cada elemento de una lista" Ejercicio2.ejecutar
   , Ejercicio "3" "Matriz transpuesta" Ejercicio3.ejecutar
+  , Ejercicio "4" "Eliminar elementos indicados de una lista" Ejercicio4.ejecutar
   ]
 
 buscar :: String -> Maybe Ejercicio
