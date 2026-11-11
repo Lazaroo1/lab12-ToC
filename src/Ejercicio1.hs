@@ -8,6 +8,8 @@ module Ejercicio1
   , mostrarValor
   , formatearDiccionario
   , formatearLista
+  , telefonos
+  , ejemplo
   ) where
 
 import Data.List (intercalate, sortBy)
@@ -67,3 +69,30 @@ formatearDiccionario diccionario =
 -- | Un diccionario por línea, con el mismo formato del enunciado.
 formatearLista :: [Diccionario] -> String
 formatearLista diccionarios = "[" ++ intercalate ",\n " (map formatearDiccionario diccionarios) ++ "]"
+
+-- | Lista de diccionarios del enunciado.
+telefonos :: [Diccionario]
+telefonos =
+  [ [("make", Texto "Apple"), ("model", Numero 2), ("color", Texto "Silver")]
+  , [("make", Texto "Samsung"), ("model", Numero 7), ("color", Texto "Blue")]
+  , [("make", Texto "Nokia"), ("model", Numero 216), ("color", Texto "Black")]
+  , [("make", Texto "Huawei"), ("model", Numero 50), ("color", Texto "Gold")]
+  ]
+
+-- | Ordena e imprime el resultado (o el error, si la llave no existe).
+mostrarOrdenado :: String -> [Diccionario] -> IO ()
+mostrarOrdenado llave diccionarios =
+  case ordenarPor llave diccionarios of
+    Left err -> putStrLn ("\nError: " ++ err)
+    Right ordenados -> do
+      putStrLn ("\nOrdenada por la llave '" ++ llave ++ "':")
+      putStrLn "D ="
+      putStrLn (formatearLista ordenados)
+
+-- | Ejemplo del enunciado: ordenar por la llave 'model'.
+ejemplo :: IO ()
+ejemplo = do
+  putStrLn "Lista original:"
+  putStrLn "D ="
+  putStrLn (formatearLista telefonos)
+  mostrarOrdenado "model" telefonos
