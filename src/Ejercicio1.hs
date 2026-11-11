@@ -8,6 +8,7 @@ module Ejercicio1
   ) where
 
 import Data.List (sortBy)
+import Data.Maybe (isNothing)
 
 -- | Valor guardado en un diccionario. Una lista de Haskell no puede mezclar
 -- tipos, así que cada valor es un número o un texto (en el ejemplo, 'model'
@@ -31,5 +32,16 @@ titulo = "Ejercicio 1 - Ordenar una lista de diccionarios por llave"
 -- La función de comparación es una lambda que busca la llave en los dos
 -- diccionarios y compara los valores encontrados. 'sortBy' es estable, así
 -- que los diccionarios con el mismo valor conservan su orden original.
-ordenarPor :: String -> [Diccionario] -> [Diccionario]
-ordenarPor llave = sortBy (\a b -> compare (lookup llave a) (lookup llave b))
+--
+-- Si algún diccionario no tiene la llave se devuelve un error, igual que
+-- Python lanzaría un KeyError.
+ordenarPor :: String -> [Diccionario] -> Either String [Diccionario]
+ordenarPor llave diccionarios
+  | not (null faltantes) =
+      Left
+        ( "La llave '" ++ llave ++ "' no existe en " ++ show (length faltantes)
+            ++ " de los " ++ show (length diccionarios) ++ " diccionarios."
+        )
+  | otherwise = Right (sortBy (\a b -> compare (lookup llave a) (lookup llave b)) diccionarios)
+  where
+    faltantes = filter (\d -> isNothing (lookup llave d)) diccionarios
