@@ -5,9 +5,12 @@ module Ejercicio1
   , Diccionario
   , titulo
   , ordenarPor
+  , mostrarValor
+  , formatearDiccionario
+  , formatearLista
   ) where
 
-import Data.List (sortBy)
+import Data.List (intercalate, sortBy)
 import Data.Maybe (isNothing)
 
 -- | Valor guardado en un diccionario. Una lista de Haskell no puede mezclar
@@ -45,3 +48,22 @@ ordenarPor llave diccionarios
   | otherwise = Right (sortBy (\a b -> compare (lookup llave a) (lookup llave b)) diccionarios)
   where
     faltantes = filter (\d -> isNothing (lookup llave d)) diccionarios
+
+-- | Muestra un valor como lo haría Python: textos entre comillas simples y
+-- números enteros sin decimales.
+mostrarValor :: Valor -> String
+mostrarValor (Texto texto) = "'" ++ texto ++ "'"
+mostrarValor (Numero numero)
+  | numero == fromInteger entero = show entero
+  | otherwise = show numero
+  where
+    entero = round numero :: Integer
+
+-- | @{'make': 'Apple', 'model': 2, 'color': 'Silver'}@
+formatearDiccionario :: Diccionario -> String
+formatearDiccionario diccionario =
+  "{" ++ intercalate ", " (map (\(llave, valor) -> "'" ++ llave ++ "': " ++ mostrarValor valor) diccionario) ++ "}"
+
+-- | Un diccionario por línea, con el mismo formato del enunciado.
+formatearLista :: [Diccionario] -> String
+formatearLista diccionarios = "[" ++ intercalate ",\n " (map formatearDiccionario diccionarios) ++ "]"
