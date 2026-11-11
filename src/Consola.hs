@@ -22,15 +22,20 @@ module Consola
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.List (dropWhileEnd, intercalate)
-import System.IO (hFlush, stdout)
+import System.Exit (exitSuccess)
+import System.IO (hFlush, isEOF, stdout)
 import Text.Read (readMaybe)
 
 -- | Muestra un mensaje, lee una línea y la devuelve sin espacios sobrantes.
+-- Si ya no hay más entrada (EOF), el programa termina sin error.
 preguntar :: String -> IO String
 preguntar mensaje = do
   putStr mensaje
   hFlush stdout
-  recortar <$> getLine
+  fin <- isEOF
+  if fin
+    then putStrLn "" >> exitSuccess
+    else recortar <$> getLine
 
 -- | Espera a que el usuario presione Enter.
 pausa :: IO ()
