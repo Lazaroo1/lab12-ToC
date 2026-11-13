@@ -13,8 +13,8 @@ y `filter`.
 
 ## Video
 
-📺 **Demostración en YouTube :** [https://youtu.be/PENDIENTE]([https://youtu.be/PENDIENTE](https://youtu.be/xrRabr0zqE8))
-
+ **Demostración en YouTube:** [Ver video en YouTube](https://youtu.be/xrRabr0zqE8)
+ 
 ## Requisitos
 
 - **GHC 9.2 o superior** y **Cabal 3.0 o superior**. La forma más sencilla de instalar ambos es con
